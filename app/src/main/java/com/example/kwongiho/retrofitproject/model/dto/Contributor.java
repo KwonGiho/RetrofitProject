@@ -1,9 +1,11 @@
-package com.example.kwongiho.retrofitproject;
+package com.example.kwongiho.retrofitproject.model.dto;
+
+import java.io.Serializable;
 
 /**
- * Created by adminstrator on 2016-03-14.
+ * Created by adminstrator on 2016-03-11.
  */
-public class Contributor {
+public class Contributor implements Serializable{
     private String login;
     private int id;
 
