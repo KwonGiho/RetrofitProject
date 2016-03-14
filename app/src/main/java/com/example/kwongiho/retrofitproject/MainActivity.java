@@ -4,11 +4,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -21,15 +26,14 @@ import retrofit2.http.Url;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mainActivityTextView;
-    private Button sendBtn;
+
+    @Bind(R.id.sendBtn) Button sendBtn;
+    @Bind(R.id.listView) ListView listView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mainActivityTextView = (TextView)findViewById(R.id.mainActivityTextView);
-        sendBtn = (Button)findViewById(R.id.sendBtn);
-
+        ButterKnife.bind(this);
         Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.github.com/").addConverterFactory(GsonConverterFactory.create()).build();
 
         GitHubService gitHubService = retrofit.create(GitHubService.class);
@@ -44,15 +48,16 @@ public class MainActivity extends AppCompatActivity {
 
                         if(response.isSuccess()) {
                             List<Contributor> listOfContributor = response.body();
-                            StringBuilder stringBuilder = new StringBuilder();
+                            ArrayList<Contributor> contributorArrayList = new ArrayList<Contributor>();
                             for(Contributor contributor : listOfContributor) {
-                                stringBuilder.append(contributor.toString()+'\n');
+                                contributorArrayList.add(contributor);
                             }
-                            mainActivityTextView.setText(stringBuilder.toString());
+                            RepoItemsAdapter repoItemsAdapter = new RepoItemsAdapter(getApplicationContext(),contributorArrayList);
+                            listView.setAdapter(repoItemsAdapter);
 
                         }
                         else
-                            mainActivityTextView.setText("false");
+                            Toast.makeText(getApplicationContext(), "false", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -77,36 +82,5 @@ public class MainActivity extends AppCompatActivity {
                 @Url String url
         );
     }
-    public class Contributor {
-        private String login;
-        private int id;
 
-        public Contributor(int id, String login) {
-            this.id = id;
-            this.login = login;
-        }
-
-        public String getLogin() {
-
-            return login;
-        }
-
-        public void setLogin(String login) {
-            this.login = login;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        @Override
-        public String toString() {
-            return "login='" + login + '\'' +
-                    ", id=" + id;
-        }
-    }
 }
